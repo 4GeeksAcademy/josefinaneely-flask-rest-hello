@@ -8,21 +8,28 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'user'
     id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(
         String(120), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(nullable=False)
+    # password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+
+    # Las relaciones deben ir aquí, dentro de la clase:
+    favorite_people = db.relationship(
+        "FavoritePeople", backref="user", lazy=True)
+    favorite_planets = db.relationship(
+        "FavoritePlanet", backref="user", lazy=True)
+    favorite_vehicles = db.relationship(
+        "FavoriteVehicle", backref="user", lazy=True)
 
     def serialize(self):
         return {
+            "username": self.username,
             "id": self.id,
             "email": self.email,
             # do not serialize the password, its a security breach
         }
 
-favorite_people = db.relationship("FavoritePeople", backref="user", lazy=True)
-favorite_planets = db.relationship("FavoritePlanet", backref="user", lazy=True)
-favorite_vehicles = db.relationship("FavoriteVehicle", backref="user", lazy=True)
 
 class People(db.Model):
     __tablename__ = 'people'

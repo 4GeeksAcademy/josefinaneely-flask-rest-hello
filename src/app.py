@@ -2,9 +2,8 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify
 from flask_migrate import Migrate
-from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
@@ -26,14 +25,10 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
-# Handle/serialize errors like a JSON object
-
 
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
-
-# generate sitemap with all your endpoints
 
 
 @app.route('/')
@@ -97,25 +92,21 @@ def get_all_users():
     return jsonify([user.serialize() for user in users]), 200
 
 
-@app.route('/users/favorites', methods=['GET'])
-def get_user_favorites():
-    user = User.query.get(1)  # Simulación de usuario actual
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user_with_favorites(user_id):
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
-
-    favorites = {
-        "people": [fav.serialize() for fav in user.favorite_people],
-        "planets": [fav.serialize() for fav in user.favorite_planets],
-        "vehicles": [fav.serialize() for fav in user.favorite_vehicles]
-    }
-    return jsonify(favorites), 200
+    return jsonify(user.serialize()), 200
 
 # FAVORITES PLANET
 
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
-    user = User.query.get(1)
+    # Simulación de usuario actual
+    user_id = request.args.get('user_id', default=1, type=int)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
@@ -132,7 +123,9 @@ def add_favorite_planet(planet_id):
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
 def delete_favorite_planet(planet_id):
-    user = User.query.get(1)
+    # Simulación de usuario actual
+    user_id = request.args.get('user_id', default=1, type=int)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
@@ -150,7 +143,9 @@ def delete_favorite_planet(planet_id):
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
 def add_favorite_people(people_id):
-    user = User.query.get(1)
+    # Simulación de usuario actual
+    user_id = request.args.get('user_id', default=1, type=int)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
@@ -167,7 +162,9 @@ def add_favorite_people(people_id):
 
 @app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
 def delete_favorite_people(people_id):
-    user = User.query.get(1)
+    # Simulación de usuario actual
+    user_id = request.args.get('user_id', default=1, type=int)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
@@ -185,7 +182,9 @@ def delete_favorite_people(people_id):
 
 @app.route('/favorite/vehicle/<int:vehicle_id>', methods=['POST'])
 def add_favorite_vehicle(vehicle_id):
-    user = User.query.get(1)
+    # Simulación de usuario actual
+    user_id = request.args.get('user_id', default=1, type=int)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
@@ -202,7 +201,9 @@ def add_favorite_vehicle(vehicle_id):
 
 @app.route('/favorite/vehicle/<int:vehicle_id>', methods=['DELETE'])
 def delete_favorite_vehicle(vehicle_id):
-    user = User.query.get(1)
+    # Simulación de usuario actual
+    user_id = request.args.get('user_id', default=1, type=int)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
